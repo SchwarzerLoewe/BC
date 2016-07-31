@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace BC
 {
@@ -12,28 +14,22 @@ namespace BC
                 Flush();
 
             //test
-            var iwTest = bc.AddMethod(Primitive.String);
-            var testPtr = iwTest.WriteInstruction(Instruction.print, "Hello World").
-            WriteInstruction(Instruction.pause).
-            WriteInstruction(Instruction.ret, "FooBar").
-            Flush();
-
             var tptr = bc.AddMethod(new InstructionSet
             {
                 { Instruction.print, "Hello World" },
                 { Instruction.pause },
                 { Instruction.ret, "FooBar" }
-            }).Flush();
+            }, Primitive.String).Flush();
 
             //main
-            var iw = bc.AddMethod(Primitive.Integer);
-
-            var mainPtr = iw.WriteInstruction(Instruction.ld_i, 3).
-            WriteInstruction(Instruction.ld_i, 3).
-            WriteInstruction(Instruction.add_i).
-            WriteInstruction(Instruction.call, tptr).
-            WriteInstruction(Instruction.ret, 0).
-            Flush();
+            var mainPtr = bc.AddMethod(new InstructionSet
+            {
+                { Instruction.ld_i, 3},
+                { Instruction.ld_i, 3},
+                { Instruction.add_i },
+                { Instruction.call, tptr },
+                { Instruction.ret, 0 }
+            }, Primitive.Integer).Flush();
 
             var vm = new VM();
             var buff = bc.ToArray();

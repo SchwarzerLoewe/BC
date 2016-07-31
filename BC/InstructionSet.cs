@@ -24,6 +24,10 @@ namespace BC
         {
             writer.WriteInstruction(x, s);
         }
+        public void Add(Instruction x, FunctionPointer fptr)
+        {
+            writer.WriteInstruction(x, fptr);
+        }
         public void Add(Instruction x)
         {
             writer.WriteInstruction(x);
