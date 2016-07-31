@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace BC
 {
@@ -18,6 +19,15 @@ namespace BC
             var iw = new InstructionWriter(FunctionPointer.NewFP());
 
             Methods.Add(iw.Handle, new Method { Handle = iw.Handle, ReturnType = prim });
+            Writers.Add(iw.Handle, iw);
+
+            return iw;
+        }
+        public InstructionWriter AddMethod(InstructionSet set)
+        {
+            var iw = set.GetWriter();
+
+            Methods.Add(iw.Handle, new Method { Handle = iw.Handle, ReturnType = Primitive.Void });
             Writers.Add(iw.Handle, iw);
 
             return iw;

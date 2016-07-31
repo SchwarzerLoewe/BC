@@ -17,7 +17,14 @@ namespace BC
         public static FunctionPointer From(Guid g) =>
             new FunctionPointer { ID = g };
 
-        public override string ToString() => ID.ToString();
+        public override string ToString()
+        {
+            var buf = ID.ToByteArray();
+            ulong first = BitConverter.ToUInt64(buf, 0);
+            ulong second = BitConverter.ToUInt64(buf, 8);
+
+            return $"[{first}, {second}]";
+        }
 
         public static bool operator ==(FunctionPointer a, FunctionPointer b) => a.ID == b.ID;
         public static bool operator !=(FunctionPointer a, FunctionPointer b) => a.ID != b.ID;

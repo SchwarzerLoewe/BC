@@ -18,13 +18,20 @@ namespace BC
             WriteInstruction(Instruction.ret, "FooBar").
             Flush();
 
+            var tptr = bc.AddMethod(new InstructionSet
+            {
+                { Instruction.print, "Hello World" },
+                { Instruction.pause },
+                { Instruction.ret, "FooBar" }
+            }).Flush();
+
             //main
             var iw = bc.AddMethod(Primitive.Integer);
 
             var mainPtr = iw.WriteInstruction(Instruction.ld_i, 3).
             WriteInstruction(Instruction.ld_i, 3).
             WriteInstruction(Instruction.add_i).
-            WriteInstruction(Instruction.call, testPtr).
+            WriteInstruction(Instruction.call, tptr).
             WriteInstruction(Instruction.ret, 0).
             Flush();
 
