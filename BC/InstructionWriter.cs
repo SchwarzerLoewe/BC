@@ -49,12 +49,12 @@ namespace BC
 
             return Write();
         }
-        public InstructionWriter WriteInstruction(Instruction i, string val)
+        public InstructionWriter WriteInstruction(Instruction i, BCString val)
         {
             count++;
 
             bw.Write((byte)i);
-            bw.Write(val);
+            bw.Write(val.ToString());
 
             return Write();
         }

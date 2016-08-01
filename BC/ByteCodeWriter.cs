@@ -22,11 +22,11 @@ namespace BC
 
             return iw;
         }
-        public InstructionWriter AddMethod(InstructionSet set, Primitive prim = Primitive.Void)
+        public InstructionWriter AddMethod(InstructionSet set, Primitive prim = Primitive.Void, bool isMain = false)
         {
             var iw = set.GetWriter();
 
-            Methods.Add(iw.Handle, new Method { Handle = iw.Handle, ReturnType = prim });
+            Methods.Add(iw.Handle, new Method { Handle = iw.Handle, ReturnType = prim, IsMain = isMain });
             Writers.Add(iw.Handle, iw);
 
             return iw;
@@ -54,6 +54,7 @@ namespace BC
                 bw.Write(m.Key.ToByteArray().Length);
                 bw.Write(m.Key.ToByteArray());
 
+                bw.Write(Methods[m.Key].IsMain);
                 bw.Write((byte)Methods[m.Key].ReturnType);
                 bw.Write((byte)Methods[m.Key].Parameters);
 

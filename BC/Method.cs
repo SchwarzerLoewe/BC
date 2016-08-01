@@ -13,6 +13,7 @@ namespace BC
         public MethodParameter Parameters { get; set; } = MethodParameter.None;
         public List<Local> Args { get; set; } = new List<Local>();
         public FunctionPointer Handle { get; set; }
+        public bool IsMain { get; set; }
 
         public Stack stack = new Stack();
 

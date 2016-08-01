@@ -12,7 +12,7 @@ namespace BC
             writer = new InstructionWriter(FunctionPointer.NewFP());
         }
 
-        public void Add(Instruction x, string s)
+        public void Add(Instruction x, BCString s)
         {
             writer.WriteInstruction(x, s);
         }

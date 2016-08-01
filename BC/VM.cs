@@ -28,10 +28,11 @@ namespace BC
 
                     var fp = br.ReadInt32();
                     m.Handle = FunctionPointer.From(br.ReadBytes(fp));
+                    m.IsMain = br.ReadBoolean();
                     m.ReturnType = (Primitive)br.ReadByte();
                     m.Parameters = (MethodParameter)br.ReadByte();
                     m.Count = br.ReadInt32();
-
+                    
                     var raw = br.ReadBytes(m.Count);
                     m.BC = raw;
 
@@ -66,6 +67,27 @@ namespace BC
             return Invoke(m, args);
         }
 
+        public int InvokeMain(object[]args)
+        {
+            Method m = null;
+            foreach (var tm in Methods)
+            {
+                if (tm.IsMain)
+                {
+                    m = tm;
+                    break;
+                }
+            }
+            if (m.ReturnType == Primitive.Integer)
+            {
+                return (int)Invoke(m, args);
+            }
+
+            Invoke(m, args);
+
+            return 0;
+        }
+
         public object Invoke(Method m, object[] args = null)
         {
             var br = new BinaryReader(new MemoryStream(m.BC));
@@ -89,7 +111,7 @@ namespace BC
 
                         break;
                     case Instruction.ld_s:
-                        m.stack.Push(br.ReadString());
+                        m.stack.Push(new BCString(br.ReadString()).ToReadable());
 
                         break;
                     case Instruction.add_i:
@@ -106,7 +128,7 @@ namespace BC
 
                         break;
                     case Instruction.print:
-                        var arg = br.ReadString();
+                        var arg = new BCString(br.ReadString()).ToReadable();
 
                         Console.WriteLine(arg);
 
@@ -125,7 +147,7 @@ namespace BC
                                 m.Ret = br.ReadSingle();
                                 break;
                             case Primitive.String:
-                                m.Ret = br.ReadString();
+                                m.Ret = new BCString(br.ReadString()).ToReadable();
 
                                 break;
                         }
