@@ -2,27 +2,28 @@
 
 namespace BC
 {
-    public class BCString
+    public class BcString
     {
-        private string b;
-        public BCString(string ba)
+        private readonly string _b;
+
+        public BcString(string ba)
         {
-            b = ba;
+            _b = ba;
         }
 
         public string ToReadable()
         {
-            return Encoding.ASCII.GetString(Base58Encoding.Decode(b));
+            return Encoding.ASCII.GetString(Base58Encoding.Decode(_b));
         }
 
-        public static implicit operator BCString(string b)
+        public static implicit operator BcString(string b)
         {
-            return new BCString(b);
+            return new BcString(b);
         }
 
         public override string ToString()
         {
-            return Base58Encoding.Encode(Encoding.ASCII.GetBytes(b));
+            return Base58Encoding.Encode(Encoding.ASCII.GetBytes(_b));
         }
     }
 }

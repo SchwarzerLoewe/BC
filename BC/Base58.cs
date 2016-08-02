@@ -10,8 +10,8 @@ namespace BC
         public static T[] ConcatArrays<T>(params T[][] arrays)
         {
             var result = new T[arrays.Sum(arr => arr.Length)];
-            int offset = 0;
-            for (int i = 0; i < arrays.Length; i++)
+            var offset = 0;
+            for (var i = 0; i < arrays.Length; i++)
             {
                 var arr = arrays[i];
                 Buffer.BlockCopy(arr, 0, result, offset, arr.Length);
@@ -45,47 +45,46 @@ namespace BC
     {
         public const int CheckSumSizeInBytes = 4;
 
+        private const string Digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
         public static byte[] AddCheckSum(byte[] data)
         {
-            byte[] checkSum = GetCheckSum(data);
-            byte[] dataWithCheckSum = ArrayHelpers.ConcatArrays(data, checkSum);
+            var checkSum = GetCheckSum(data);
+            var dataWithCheckSum = ArrayHelpers.ConcatArrays(data, checkSum);
             return dataWithCheckSum;
         }
 
         //Returns null if the checksum is invalid
         public static byte[] VerifyAndRemoveCheckSum(byte[] data)
         {
-            byte[] result = ArrayHelpers.SubArray(data, 0, data.Length - CheckSumSizeInBytes);
-            byte[] givenCheckSum = ArrayHelpers.SubArray(data, data.Length - CheckSumSizeInBytes);
-            byte[] correctCheckSum = GetCheckSum(result);
+            var result = ArrayHelpers.SubArray(data, 0, data.Length - CheckSumSizeInBytes);
+            var givenCheckSum = ArrayHelpers.SubArray(data, data.Length - CheckSumSizeInBytes);
+            var correctCheckSum = GetCheckSum(result);
             if (givenCheckSum.SequenceEqual(correctCheckSum))
                 return result;
-            else
-                return null;
+            return null;
         }
-
-        private const string Digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
         public static string Encode(byte[] data)
         {
             // Decode byte[] to BigInteger
             BigInteger intData = 0;
-            for (int i = 0; i < data.Length; i++)
+            for (var i = 0; i < data.Length; i++)
             {
-                intData = intData * 256 + data[i];
+                intData = intData*256 + data[i];
             }
 
             // Encode BigInteger to Base58 string
-            string result = "";
+            var result = "";
             while (intData > 0)
             {
-                int remainder = (int)(intData % 58);
+                var remainder = (int) (intData%58);
                 intData /= 58;
                 result = Digits[remainder] + result;
             }
 
             // Append `1` for each leading 0 byte
-            for (int i = 0; i < data.Length && data[i] == 0; i++)
+            for (var i = 0; i < data.Length && data[i] == 0; i++)
             {
                 result = '1' + result;
             }
@@ -101,22 +100,22 @@ namespace BC
         {
             // Decode Base58 string to BigInteger 
             BigInteger intData = 0;
-            for (int i = 0; i < s.Length; i++)
+            for (var i = 0; i < s.Length; i++)
             {
-                int digit = Digits.IndexOf(s[i]); //Slow
+                var digit = Digits.IndexOf(s[i]); //Slow
                 if (digit < 0)
                     throw new FormatException(string.Format("Invalid Base58 character `{0}` at position {1}", s[i], i));
-                intData = intData * 58 + digit;
+                intData = intData*58 + digit;
             }
 
             // Encode BigInteger to byte[]
             // Leading zero bytes get encoded as leading `1` characters
-            int leadingZeroCount = s.TakeWhile(c => c == '1').Count();
-            var leadingZeros = Enumerable.Repeat((byte)0, leadingZeroCount);
+            var leadingZeroCount = s.TakeWhile(c => c == '1').Count();
+            var leadingZeros = Enumerable.Repeat((byte) 0, leadingZeroCount);
             var bytesWithoutLeadingZeros =
                 intData.ToByteArray()
-                .Reverse()// to big endian
-                .SkipWhile(b => b == 0);//strip sign byte
+                    .Reverse() // to big endian
+                    .SkipWhile(b => b == 0); //strip sign byte
             var result = leadingZeros.Concat(bytesWithoutLeadingZeros).ToArray();
             return result;
         }
@@ -134,8 +133,8 @@ namespace BC
         private static byte[] GetCheckSum(byte[] data)
         {
             SHA256 sha256 = new SHA256Managed();
-            byte[] hash1 = sha256.ComputeHash(data);
-            byte[] hash2 = sha256.ComputeHash(hash1);
+            var hash1 = sha256.ComputeHash(data);
+            var hash2 = sha256.ComputeHash(hash1);
 
             var result = new byte[CheckSumSizeInBytes];
             Buffer.BlockCopy(hash2, 0, result, 0, result.Length);

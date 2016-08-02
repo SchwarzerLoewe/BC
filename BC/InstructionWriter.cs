@@ -5,95 +5,124 @@ namespace BC
 {
     public class InstructionWriter
     {
-        BinaryWriter bw;
-        int count;
-        MemoryStream ms;
-        internal FunctionPointer Handle;
+        private BinaryWriter _bw;
+        private int _count;
+        internal Pointer Handle;
+        private MemoryStream _ms;
 
-        public InstructionWriter(FunctionPointer fp)
+        public InstructionWriter(Pointer fp)
         {
-            ms = new MemoryStream();
-            bw = new BinaryWriter(ms);
+            _ms = new MemoryStream();
+            _bw = new BinaryWriter(_ms);
 
             Handle = fp;
         }
 
+        public bool IsFlushed { get; set; }
+        public bool IsEmpty { get; set; }
+
         public InstructionWriter WriteInstruction(Instruction i, int val)
         {
-            count++;
+            _count++;
 
-            bw.Write((byte)i);
-            bw.Write(val);
+            _bw.Write((byte) i);
+            _bw.Write(val);
 
             return Write();
         }
-        public InstructionWriter WriteInstruction(Instruction i, FunctionPointer val)
-        {
-            count++;
 
-            bw.Write((byte)i);
+        public InstructionWriter WriteInstruction(Instruction i, bool val)
+        {
+            _count++;
+
+            _bw.Write((byte) i);
+            _bw.Write(val);
+
+            return Write();
+        }
+
+        public InstructionWriter WriteInstruction(Instruction i, Pointer val)
+        {
+            _count++;
+
+            _bw.Write((byte) i);
 
             var buf = val.ToArray();
 
-            bw.Write(buf.Length);
-            bw.Write(buf);
+            _bw.Write(buf.Length);
+            _bw.Write(buf);
 
             return Write();
         }
+
+        public InstructionWriter WriteInstruction(Instruction i, Pointer val, object v)
+        {
+            _count++;
+
+            _bw.Write((byte) i);
+
+            var buf = val.ToArray();
+
+            _bw.Write(buf.Length);
+            _bw.Write(buf);
+           // bw.Write(v);
+
+            return Write();
+        }
+
         public InstructionWriter WriteInstruction(Instruction i, float val)
         {
-            count++;
+            _count++;
 
-            bw.Write((byte)i);
-            bw.Write(val);
+            _bw.Write((byte) i);
+            _bw.Write(val);
 
             return Write();
         }
-        public InstructionWriter WriteInstruction(Instruction i, BCString val)
+
+        public InstructionWriter WriteInstruction(Instruction i, BcString val)
         {
-            count++;
+            _count++;
 
-            bw.Write((byte)i);
-            bw.Write(val.ToString());
+            _bw.Write((byte) i);
+            _bw.Write(val.ToString());
 
             return Write();
         }
+
         public InstructionWriter WriteInstruction(Instruction i)
         {
-            count++;
+            _count++;
 
-            bw.Write((byte)i);
+            _bw.Write((byte) i);
 
             return Write();
         }
 
-        InstructionWriter Write()
+        private InstructionWriter Write()
         {
             IsEmpty = false;
 
             return this;
         }
 
-        public bool IsFlushed { get; set; }
-        public bool IsEmpty { get; set; }
-
-        public FunctionPointer Flush()
+        public Pointer Flush()
         {
             if (!IsFlushed)
             {
-                bw.Flush();
+                _bw.Flush();
 
-                var tba = new byte[ms.Length + 4];
-                Array.Copy(ms.ToArray(), 0, tba, 4, ms.Length);
+                var tba = new byte[_ms.Length + 4];
+                Array.Copy(_ms.ToArray(), 0, tba, 4, _ms.Length);
 
                 var tms = new MemoryStream(tba);
                 var tbw = new BinaryWriter(tms);
-                tbw.Write(count);
+                tbw.Write(_count);
                 tbw.Flush();
                 tbw.Close();
 
-                ms = tms;
-                bw = tbw;
+                _ms = tms;
+                _bw = tbw;
 
                 IsFlushed = true;
             }
@@ -103,7 +132,7 @@ namespace BC
 
         public byte[] ToArray()
         {
-            return ms.ToArray();
+            return _ms.ToArray();
         }
     }
 }

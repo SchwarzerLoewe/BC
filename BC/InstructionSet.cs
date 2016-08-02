@@ -5,38 +5,52 @@ namespace BC
 {
     public class InstructionSet : IEnumerable<byte>
     {
-        private InstructionWriter writer;
+        private readonly InstructionWriter _writer;
 
         public InstructionSet()
         {
-            writer = new InstructionWriter(FunctionPointer.NewFP());
+            _writer = new InstructionWriter(Pointer.NewFp());
         }
-
-        public void Add(Instruction x, BCString s)
-        {
-            writer.WriteInstruction(x, s);
-        }
-        public void Add(Instruction x, int s)
-        {
-            writer.WriteInstruction(x, s);
-        }
-        public void Add(Instruction x, float s)
-        {
-            writer.WriteInstruction(x, s);
-        }
-        public void Add(Instruction x, FunctionPointer fptr)
-        {
-            writer.WriteInstruction(x, fptr);
-        }
-        public void Add(Instruction x)
-        {
-            writer.WriteInstruction(x);
-        }
-
-        public InstructionWriter GetWriter() => writer;
 
         public IEnumerator<byte> GetEnumerator() => null;
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public void Add(Instruction x, BcString s)
+        {
+            _writer.WriteInstruction(x, s);
+        }
+
+        public void Add(Instruction x, int s)
+        {
+            _writer.WriteInstruction(x, s);
+        }
+
+        public void Add(Instruction x, float s)
+        {
+            _writer.WriteInstruction(x, s);
+        }
+
+        public void Add(Instruction x, bool s)
+        {
+            _writer.WriteInstruction(x, s);
+        }
+
+        public void Add(Instruction x, Pointer fptr)
+        {
+            _writer.WriteInstruction(x, fptr);
+        }
+
+        public void Add(Instruction x, Pointer fptr, object val)
+        {
+            _writer.WriteInstruction(x, fptr, val);
+        }
+
+        public void Add(Instruction x)
+        {
+            _writer.WriteInstruction(x);
+        }
+
+        public InstructionWriter GetWriter() => _writer;
     }
 }

@@ -3,18 +3,20 @@
     public enum Instruction : byte
     {
         // loadVars
-        ld_i = 0x01,
-        ld_f = 0x02,
-        ld_s = 0x03,
+        LdI = 0x01,
+        LdF = 0x02,
+        LdS = 0x03,
+        LdB = 0x04,
 
         // aritmethic
-        add_i = 0x08,
+        AddI = 0x08,
 
         // call stuff
-        call = 0x15,
-        print = 0x16,
-        pause = 0x17,
-        ret = 0x18,
-        
+        Call = 0x15,
+        Print = 0x16,
+        Pause = 0x17,
+        Ret = 0x18,
+
+        Local = 0x25
     }
 }

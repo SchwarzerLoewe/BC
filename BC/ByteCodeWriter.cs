@@ -6,27 +6,29 @@ namespace BC
 {
     public class ByteCodeWriter
     {
-        public Dictionary<Guid, Method> Methods { get; set; } = 
+        readonly MemoryStream _ms = new MemoryStream();
+
+        Dictionary<Guid, Method> Methods { get; set; } =
             new Dictionary<Guid, Method>();
-        public Dictionary<Guid, InstructionWriter> Writers { get; set; } =
+
+        Dictionary<Guid, InstructionWriter> Writers { get; set; } =
             new Dictionary<Guid, InstructionWriter>();
-        
-        MemoryStream ms = new MemoryStream();
 
         public InstructionWriter AddMethod(Primitive prim = Primitive.Void)
         {
-            var iw = new InstructionWriter(FunctionPointer.NewFP());
+            var iw = new InstructionWriter(Pointer.NewFp());
 
-            Methods.Add(iw.Handle, new Method { Handle = iw.Handle, ReturnType = prim });
+            Methods.Add(iw.Handle, new Method {Handle = iw.Handle, ReturnType = prim});
             Writers.Add(iw.Handle, iw);
 
             return iw;
         }
+
         public InstructionWriter AddMethod(InstructionSet set, Primitive prim = Primitive.Void, bool isMain = false)
         {
             var iw = set.GetWriter();
 
-            Methods.Add(iw.Handle, new Method { Handle = iw.Handle, ReturnType = prim, IsMain = isMain });
+            Methods.Add(iw.Handle, new Method {Handle = iw.Handle, ReturnType = prim, IsMain = isMain});
             Writers.Add(iw.Handle, iw);
 
             return iw;
@@ -34,17 +36,17 @@ namespace BC
 
         public InstructionWriter GetRoot()
         {
-            var iw = new InstructionWriter(FunctionPointer.Root);
+            var iw = new InstructionWriter(Pointer.Root);
 
-            Methods.Add(FunctionPointer.Root, new Method { Handle = FunctionPointer.Root, ReturnType = Primitive.Void });
-            Writers.Add(FunctionPointer.Root, iw);
+            Methods.Add(Pointer.Root, new Method {Handle = Pointer.Root, ReturnType = Primitive.Void});
+            Writers.Add(Pointer.Root, iw);
 
             return iw;
         }
 
         public byte[] ToArray()
         {
-            var bw = new BinaryWriter(ms);
+            var bw = new BinaryWriter(_ms);
             bw.Write(0xF00D);
 
             bw.Write(Methods.Count);
@@ -55,8 +57,8 @@ namespace BC
                 bw.Write(m.Key.ToByteArray());
 
                 bw.Write(Methods[m.Key].IsMain);
-                bw.Write((byte)Methods[m.Key].ReturnType);
-                bw.Write((byte)Methods[m.Key].Parameters);
+                bw.Write((byte) Methods[m.Key].ReturnType);
+                bw.Write((byte) Methods[m.Key].Parameters);
 
                 var buf = m.Value.ToArray();
 
@@ -64,7 +66,7 @@ namespace BC
                 bw.Write(buf);
             }
 
-            return ms.ToArray();
+            return _ms.ToArray();
         }
     }
 }

@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 
 namespace BC
 {
-    public class VM
+    public class Vm
     {
-        public List<Method> Methods = new List<Method>();
+        private readonly List<Method> _methods = new List<Method>();
 
         [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        static extern int system(string command);
+        private static extern int system(string command);
 
         public void LoadMeta(byte[] buf)
         {
@@ -22,21 +22,21 @@ namespace BC
             if (magic == 0xF00D)
             {
                 var mc = br.ReadInt32();
-                for (int i = 0; i < mc; i++)
+                for (var i = 0; i < mc; i++)
                 {
                     var m = new Method();
 
                     var fp = br.ReadInt32();
-                    m.Handle = FunctionPointer.From(br.ReadBytes(fp));
+                    m.Handle = Pointer.From(br.ReadBytes(fp));
                     m.IsMain = br.ReadBoolean();
-                    m.ReturnType = (Primitive)br.ReadByte();
-                    m.Parameters = (MethodParameter)br.ReadByte();
+                    m.ReturnType = (Primitive) br.ReadByte();
+                    m.Parameters = (MethodParameter) br.ReadByte();
                     m.Count = br.ReadInt32();
-                    
-                    var raw = br.ReadBytes(m.Count);
-                    m.BC = raw;
 
-                    Methods.Add(m);
+                    var raw = br.ReadBytes(m.Count);
+                    m.Bc = raw;
+
+                    _methods.Add(m);
                 }
             }
             else
@@ -49,38 +49,23 @@ namespace BC
 
         public void InvokeRoot()
         {
-            Invoke(FunctionPointer.Root);
+            Invoke(Pointer.Root);
         }
 
-        public object Invoke(FunctionPointer fp, object[] args = null)
+        public object Invoke(Pointer fp, object[] args = null)
         {
-            Method m = null;
-            foreach (var tm in Methods)
-            {
-                if(tm.Handle == fp)
-                {
-                    m = tm;
-                    break;
-                }
-            }
+            Method m = _methods.FirstOrDefault(tm => tm.Handle == fp);
 
             return Invoke(m, args);
         }
 
-        public int InvokeMain(object[]args)
+        public int InvokeMain(object[] args)
         {
-            Method m = null;
-            foreach (var tm in Methods)
+            Method m = _methods.FirstOrDefault(tm => tm.IsMain);
+
+            if (m != null && m.ReturnType == Primitive.Integer)
             {
-                if (tm.IsMain)
-                {
-                    m = tm;
-                    break;
-                }
-            }
-            if (m.ReturnType == Primitive.Integer)
-            {
-                return (int)Invoke(m, args);
+                return (int) Invoke(m, args);
             }
 
             Invoke(m, args);
@@ -90,54 +75,69 @@ namespace BC
 
         public object Invoke(Method m, object[] args = null)
         {
-            var br = new BinaryReader(new MemoryStream(m.BC));
+            var br = new BinaryReader(new MemoryStream(m.Bc));
 
             m.Args = ConvertArgsToLocal(args);
 
             var count = br.ReadInt32();
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
-                var instruction = (Instruction)br.ReadByte();
+                var instruction = (Instruction) br.ReadByte();
 
                 switch (instruction)
                 {
-                    case Instruction.ld_i:
-                        m.stack.Push(br.ReadInt32());
+                    case Instruction.LdI:
+                        m.Stack.Push(br.ReadInt32());
 
                         break;
-                    case Instruction.ld_f:
-                        m.stack.Push(br.ReadSingle());
+                    case Instruction.LdF:
+                        m.Stack.Push(br.ReadSingle());
 
                         break;
-                    case Instruction.ld_s:
-                        m.stack.Push(new BCString(br.ReadString()).ToReadable());
+                    case Instruction.LdB:
+                        m.Stack.Push(br.ReadBoolean());
 
                         break;
-                    case Instruction.add_i:
-                        int b = m.stack.Pop<int>();
-                        int a = m.stack.Pop<int>();
-
-                        m.stack.Push(a + b);
+                    case Instruction.LdS:
+                        m.Stack.Push(new BcString(br.ReadString()).ToReadable());
 
                         break;
-                    case Instruction.call:
+                    case Instruction.AddI:
+                        var b = m.Stack.Pop<int>();
+                        var a = m.Stack.Pop<int>();
+
+                        m.Stack.Push(a + b);
+
+                        break;
+                    case Instruction.Call:
                         var fpC = br.ReadInt32();
 
-                        Invoke(FunctionPointer.From(br.ReadBytes(fpC)));
+                        Invoke(Pointer.From(br.ReadBytes(fpC)));
 
                         break;
-                    case Instruction.print:
-                        var arg = new BCString(br.ReadString()).ToReadable();
+                    case Instruction.Print:
+                        var arg = new BcString(br.ReadString()).ToReadable();
 
                         Console.WriteLine(arg);
 
                         break;
-                    case Instruction.pause:
+                    case Instruction.Pause:
                         system("pause");
 
                         break;
-                    case Instruction.ret:
+                    case Instruction.Local:
+                        var fp = br.ReadInt32();
+                        var ptr = Pointer.From(br.ReadBytes(fp));
+                        var t = (Primitive) br.ReadByte();
+
+                        var v = Primitive.Null;
+
+                        var l = new Local {DataType = t, Handle = ptr, Value = v};
+
+                        m.Locals.Add(l);
+                        break;
+                    case Instruction.Ret:
                         switch (m.ReturnType)
                         {
                             case Primitive.Integer:
@@ -146,13 +146,17 @@ namespace BC
                             case Primitive.Float:
                                 m.Ret = br.ReadSingle();
                                 break;
+                            case Primitive.Bool:
+                                m.Ret = br.ReadBoolean();
+                                break;
                             case Primitive.String:
-                                m.Ret = new BCString(br.ReadString()).ToReadable();
+                                m.Ret = new BcString(br.ReadString()).ToReadable();
 
                                 break;
                         }
+                        m.Locals.Clear();
 
-                        Methods.Replace((_) => _.Handle == m.Handle, m);
+                        _methods.Replace(_ => _.Handle == m.Handle, m);
 
                         break;
                 }
