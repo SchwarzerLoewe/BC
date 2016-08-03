@@ -6,10 +6,7 @@ namespace BC
 {
     public static class Extensions
     {
-        public static T Pop<T>(this Stack s)
-        {
-            return (T) s.Pop();
-        }
+        public static T Pop<T>(this Stack s) => (T)s.Pop();
 
         public static void Replace<T>(this List<T> src, Predicate<T> selector, T newItem)
         {
@@ -28,6 +25,7 @@ namespace BC
             if (val is int) return Primitive.Integer;
             if (val is float) return Primitive.Float;
             if (val is string) return Primitive.String;
+            if (val is bool) return Primitive.Bool;
 
             return Primitive.Void;
         }

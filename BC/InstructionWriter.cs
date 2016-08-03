@@ -7,8 +7,8 @@ namespace BC
     {
         private BinaryWriter _bw;
         private int _count;
-        internal Pointer Handle;
         private MemoryStream _ms;
+        internal readonly Pointer Handle;
 
         public InstructionWriter(Pointer fp)
         {
@@ -65,7 +65,7 @@ namespace BC
 
             _bw.Write(buf.Length);
             _bw.Write(buf);
-           // bw.Write(v);
+            // bw.Write(v);
 
             return Write();
         }

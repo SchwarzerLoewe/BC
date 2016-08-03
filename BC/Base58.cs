@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace BC
 {
-    public class ArrayHelpers
+    public static class ArrayHelpers
     {
         public static T[] ConcatArrays<T>(params T[][] arrays)
         {
@@ -43,7 +43,7 @@ namespace BC
 
     public static class Base58Encoding
     {
-        public const int CheckSumSizeInBytes = 4;
+        private const int CheckSumSizeInBytes = 4;
 
         private const string Digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 

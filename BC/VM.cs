@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -15,6 +16,8 @@ namespace BC
 
         public void LoadMeta(byte[] buf)
         {
+            Contract.Requires<ArgumentNullException>(buf != null);
+
             var br = new BinaryReader(new MemoryStream(buf));
 
             var magic = br.ReadInt32();
@@ -41,7 +44,7 @@ namespace BC
             }
             else
             {
-                throw new Exception("Wrong Binary Format!! 0xF00DBA3 needed");
+                throw new FormatException("Wrong Binary Format!! 0xF00DBA3 needed");
             }
 
             br.Close();
@@ -54,14 +57,14 @@ namespace BC
 
         public object Invoke(Pointer fp, object[] args = null)
         {
-            Method m = _methods.FirstOrDefault(tm => tm.Handle == fp);
+            var m = _methods.FirstOrDefault(tm => tm.Handle == fp);
 
             return Invoke(m, args);
         }
 
         public int InvokeMain(object[] args)
         {
-            Method m = _methods.FirstOrDefault(tm => tm.IsMain);
+            var m = _methods.FirstOrDefault(tm => tm.IsMain);
 
             if (m != null && m.ReturnType == Primitive.Integer)
             {

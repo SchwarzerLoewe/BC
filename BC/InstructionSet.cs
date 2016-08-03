@@ -12,7 +12,7 @@ namespace BC
             _writer = new InstructionWriter(Pointer.NewFp());
         }
 
-        public IEnumerator<byte> GetEnumerator() => null;
+        public IEnumerator<byte> GetEnumerator() => new byte[12].GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

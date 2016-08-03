@@ -2,9 +2,9 @@
 
 namespace BC
 {
-    public class Program
+    public static class Program
     {
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             if (args.Length > 0)
             {
