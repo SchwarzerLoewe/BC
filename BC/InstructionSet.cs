@@ -6,10 +6,12 @@ namespace BC
     public class InstructionSet : IEnumerable<byte>
     {
         private readonly InstructionWriter _writer;
+        private ByteCodeWriter _m;
 
-        public InstructionSet()
+        public InstructionSet(ByteCodeWriter m)
         {
             _writer = new InstructionWriter(Pointer.NewFp());
+            _m = m;
         }
 
         public IEnumerator<byte> GetEnumerator() => null;
@@ -32,14 +34,15 @@ namespace BC
             _writer.WriteObject(r);
 
             _writer._bw.Write(falseSet != null);
-            var tbuffer = trueSet._writer.ToArray();
-
-            _writer._bw.Write(tbuffer.Length);
-            _writer._bw.Write(tbuffer);
+            var branchTrueMethodPtr = _m.AddMethod(trueSet).Handle;
+            
+            _writer.WriteInstruction(Instruction.Call, branchTrueMethodPtr);
 
             if (falseSet != null)
             {
-               //ToDO: write false set
+                var branchFalseMethodPtr = _m.AddMethod(falseSet).Handle;
+
+                _writer.WriteInstruction(Instruction.Call, branchFalseMethodPtr);
             }
         }
 

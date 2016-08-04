@@ -73,7 +73,7 @@ namespace BC
             return 0;
         }
 
-        public void InvokeScope(int count, Scope s, BinaryReader br, Method parentMethod)
+        public void InvokeScope(int count, Scope s, BinaryReader br, ref Method parentMethod)
         {
             for (var i = 0; i < count; i++)
             {
@@ -119,31 +119,6 @@ namespace BC
                         system("pause");
 
                         break;
-                    case Instruction.Branch:
-                        var lp = (Primitive)br.ReadByte();
-                        var left = GetObject(lp, br);
-                        var rp = (Primitive)br.ReadByte();
-                        var right = GetObject(rp, br);
-
-                        var ifS = new Scope();
-                        var hasFalse = br.ReadBoolean();
-                        var tCount = br.ReadInt32();
-
-                        if (left.Equals(right))
-                        {
-                            InvokeScope(tCount, ifS, br, parentMethod);
-                        }
-                        else
-                        {
-                            if (hasFalse)
-                            {
-                                var c = br.ReadInt32();
-                                br.ReadBytes(tCount);
-                                InvokeScope(c, ifS, br, parentMethod);
-                            }
-                        }
-
-                        break;
                     case Instruction.Local:
                         var fp = br.ReadInt32();
                         var ptr = Pointer.From(br.ReadBytes(fp));
@@ -160,8 +135,8 @@ namespace BC
                         parentMethod.Ret = obj;
                         
                         s.Locals.Clear();
-
-                        _methods.Replace(_ => _.Handle == parentMethod.Handle, parentMethod);
+                        Pointer handle = parentMethod.Handle;
+                        _methods.Replace(_ => _.Handle == handle, parentMethod);
 
                         break;
                 }
@@ -200,7 +175,7 @@ namespace BC
                 m.Args = ConvertArgsToLocal(args);
 
                 var c = br.ReadInt32();
-                InvokeScope(c, m.Scope, br, m);
+                InvokeScope(c, m.Scope, br, ref m);
 
                 br.Close();
             }

@@ -25,15 +25,8 @@ namespace BC
                 //  Flush();
 
                 //main
-                var mainPtr = bc.AddMethod(new InstructionSet
+                var mainPtr = bc.AddMethod(new InstructionSet(bc)
                 {
-                    {
-                        Instruction.Branch, true, false, new InstructionSet()
-                        {
-                            { Instruction.LdS, "Hello if true" },
-                            Instruction.Print
-                        }
-                    },
                     {Instruction.LdI, 8},
                     {Instruction.LdI, 2},
                     { Instruction.LdS, "8 + 2 = " },
