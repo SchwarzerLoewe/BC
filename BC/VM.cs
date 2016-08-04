@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -16,8 +15,6 @@ namespace BC
 
         public void LoadMeta(byte[] buf)
         {
-            Contract.Requires<ArgumentNullException>(buf != null);
-
             var br = new BinaryReader(new MemoryStream(buf));
 
             var magic = br.ReadInt32();
@@ -76,41 +73,35 @@ namespace BC
             return 0;
         }
 
-        public object Invoke(Method m, object[] args = null)
+        public void InvokeScope(int count, Scope s, BinaryReader br, Method parentMethod)
         {
-            var br = new BinaryReader(new MemoryStream(m.Bc));
-
-            m.Args = ConvertArgsToLocal(args);
-
-            var count = br.ReadInt32();
-
             for (var i = 0; i < count; i++)
             {
-                var instruction = (Instruction) br.ReadByte();
+                var instruction = (Instruction)br.ReadByte();
 
                 switch (instruction)
                 {
                     case Instruction.LdI:
-                        m.Stack.Push(br.ReadInt32());
+                        s.Stack.Push(br.ReadInt32());
 
                         break;
                     case Instruction.LdF:
-                        m.Stack.Push(br.ReadSingle());
+                        s.Stack.Push(br.ReadSingle());
 
                         break;
                     case Instruction.LdB:
-                        m.Stack.Push(br.ReadBoolean());
+                        s.Stack.Push(br.ReadBoolean());
 
                         break;
                     case Instruction.LdS:
-                        m.Stack.Push(new BcString(br.ReadString()).ToReadable());
+                        s.Stack.Push(new BcString(br.ReadString()).ToReadable());
 
                         break;
                     case Instruction.AddI:
-                        var b = m.Stack.Pop<int>();
-                        var a = m.Stack.Pop<int>();
+                        var b = s.Stack.Pop<int>();
+                        var a = s.Stack.Pop<int>();
 
-                        m.Stack.Push(a + b);
+                        s.Stack.Push(a + b);
 
                         break;
                     case Instruction.Call:
@@ -120,54 +111,101 @@ namespace BC
 
                         break;
                     case Instruction.Print:
-                        var arg = new BcString(br.ReadString()).ToReadable();
-
-                        Console.WriteLine(arg);
+                        Console.Write(s.Stack.Pop());
 
                         break;
                     case Instruction.Pause:
+                        Console.WriteLine();
                         system("pause");
+
+                        break;
+                    case Instruction.Branch:
+                        var lp = (Primitive)br.ReadByte();
+                        var left = GetObject(lp, br);
+                        var rp = (Primitive)br.ReadByte();
+                        var right = GetObject(rp, br);
+
+                        var ifS = new Scope();
+                        var hasFalse = br.ReadBoolean();
+                        var tCount = br.ReadInt32();
+
+                        if (left.Equals(right))
+                        {
+                            InvokeScope(tCount, ifS, br, parentMethod);
+                        }
+                        else
+                        {
+                            if (hasFalse)
+                            {
+                                var c = br.ReadInt32();
+                                br.ReadBytes(tCount);
+                                InvokeScope(c, ifS, br, parentMethod);
+                            }
+                        }
 
                         break;
                     case Instruction.Local:
                         var fp = br.ReadInt32();
                         var ptr = Pointer.From(br.ReadBytes(fp));
-                        var t = (Primitive) br.ReadByte();
+                        var t = (Primitive)br.ReadByte();
 
                         var v = Primitive.Null;
 
-                        var l = new Local {DataType = t, Handle = ptr, Value = v};
+                        var l = new Local { DataType = t, Handle = ptr, Value = v };
 
-                        m.Locals.Add(l);
+                        s.Locals.Add(l);
                         break;
                     case Instruction.Ret:
-                        switch (m.ReturnType)
-                        {
-                            case Primitive.Integer:
-                                m.Ret = br.ReadInt32();
-                                break;
-                            case Primitive.Float:
-                                m.Ret = br.ReadSingle();
-                                break;
-                            case Primitive.Bool:
-                                m.Ret = br.ReadBoolean();
-                                break;
-                            case Primitive.String:
-                                m.Ret = new BcString(br.ReadString()).ToReadable();
+                        object obj = GetObject(parentMethod.ReturnType, br);
+                        parentMethod.Ret = obj;
+                        
+                        s.Locals.Clear();
 
-                                break;
-                        }
-                        m.Locals.Clear();
-
-                        _methods.Replace(_ => _.Handle == m.Handle, m);
+                        _methods.Replace(_ => _.Handle == parentMethod.Handle, parentMethod);
 
                         break;
                 }
             }
+        }
 
-            br.Close();
+        private object GetObject(Primitive p, BinaryReader br)
+        {
+            object ret = null;
 
-            return m.Ret;
+            switch (p)
+            {
+                case Primitive.Integer:
+                    ret = br.ReadInt32();
+                    break;
+                case Primitive.Float:
+                    ret = br.ReadSingle();
+                    break;
+                case Primitive.Bool:
+                    ret = br.ReadBoolean();
+                    break;
+                case Primitive.String:
+                    ret = new BcString(br.ReadString()).ToReadable();
+                    break;
+            }
+
+            return ret;
+        }
+
+        public object Invoke(Method m, object[] args = null)
+        {
+            if (m != null)
+            {
+                var br = new BinaryReader(new MemoryStream(m.Bc));
+
+                m.Args = ConvertArgsToLocal(args);
+
+                var c = br.ReadInt32();
+                InvokeScope(c, m.Scope, br, m);
+
+                br.Close();
+            }
+
+            return m?.Ret;
         }
 
         private List<Local> ConvertArgsToLocal(object[] args)

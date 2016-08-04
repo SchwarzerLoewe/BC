@@ -21,25 +21,26 @@ namespace BC
             {
                 var bc = new ByteCodeWriter();
 
-                bc.GetRoot().WriteInstruction(Instruction.Print, "Hello From Root Scope").
-                    Flush();
-
-                //test
-                var tptr = bc.AddMethod(new InstructionSet
-                {
-                    {Instruction.Print, "Hello World"},
-                    Instruction.Pause,
-                    {Instruction.Ret, "FooBar"}
-                }, Primitive.String).Flush();
+                //bc.GetRoot().WriteInstruction(Instruction.Print, "Hello From Root Scope").
+                //  Flush();
 
                 //main
                 var mainPtr = bc.AddMethod(new InstructionSet
                 {
-                    {Instruction.LdI, 3},
-                    {Instruction.LdI, 3},
+                    {
+                        Instruction.Branch, true, false, new InstructionSet()
+                        {
+                            { Instruction.LdS, "Hello if true" },
+                            Instruction.Print
+                        }
+                    },
+                    {Instruction.LdI, 8},
+                    {Instruction.LdI, 2},
+                    { Instruction.LdS, "8 + 2 = " },
+                    Instruction.Print,
                     Instruction.AddI,
-                    {Instruction.LdB, true},
-                    {Instruction.Call, tptr},
+                    Instruction.Print,
+                    Instruction.Pause,
                     {Instruction.Ret, 0}
                 }, Primitive.Integer, true).Flush();
 

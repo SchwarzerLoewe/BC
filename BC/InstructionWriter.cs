@@ -5,7 +5,7 @@ namespace BC
 {
     public class InstructionWriter
     {
-        private BinaryWriter _bw;
+        public BinaryWriter _bw;
         private int _count;
         private MemoryStream _ms;
         internal readonly Pointer Handle;
@@ -35,10 +35,37 @@ namespace BC
         {
             _count++;
 
-            _bw.Write((byte) i);
+            _bw.Write((byte)i);
             _bw.Write(val);
 
             return Write();
+        }
+
+        public void WriteObject(object v)
+        {
+            var p = Primitive.Void.GetPrimitiveFor(v);
+
+            _bw.Write((byte)p);
+
+            switch (p)
+            {
+                case Primitive.Bool:
+                    _bw.Write((bool)v);
+
+                    break;
+                case Primitive.Integer:
+                    _bw.Write((int)v);
+
+                    break;
+                case Primitive.Float:
+                    _bw.Write((float)v);
+
+                    break;
+                case Primitive.String:
+                    _bw.Write((string)v);
+
+                    break;
+            }
         }
 
         public InstructionWriter WriteInstruction(Instruction i, Pointer val)

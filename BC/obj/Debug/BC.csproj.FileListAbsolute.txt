@@ -9,6 +9,3 @@ C:\Users\chris\Documents\GitHub\BC\BC\obj\Debug\BC.exe
 C:\Users\chris\Documents\GitHub\BC\BC\obj\Debug\BC.pdb
 C:\Users\chris\Documents\GitHub\BC\BC\bin\Debug\BC.exe
 C:\Users\chris\Documents\GitHub\BC\BC\bin\Debug\BC.pdb
-C:\Users\chris\Documents\GitHub\BC\BC\obj\Debug\BC.csprojResolveAssemblyReference.cache
-C:\Users\chris\Documents\GitHub\BC\BC\bin\Debug\JetBrains.Annotations.dll
-C:\Users\chris\Documents\GitHub\BC\BC\bin\Debug\JetBrains.Annotations.xml

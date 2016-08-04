@@ -1,0 +1,14 @@
+﻿<RecentlyViewedMethods>
+  <RecentlyViewedMethods>
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/F%3ABC.InstructionWriter._bw" />
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/M%3ABC.Vm.Invoke%28BC.Method%2CSystem.Object%5B%5D%29" />
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/M%3ABC.InstructionWriter.WriteInstruction%28BC.Instruction%29" />
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/F%3ABC.Primitive.Bool" />
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/M%3ABC.Vm.GetObject%28BC.Primitive%2CSystem.IO.BinaryReader%29" />
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/M%3ABC.InstructionSet.Add%28BC.Instruction%2CSystem.Object%2CSystem.Object%2CBC.InstructionSet%2CBC.InstructionSet%29" />
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/M%3ABC.InstructionSet.Add%28BC.Instruction%29" />
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/M%3ABC.Vm.InvokeScope%28System.Int32%2CBC.Scope%2CSystem.IO.BinaryReader%2CBC.Method%29" />
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/M%3ABC.InstructionWriter.WriteObject%28System.Object%29" />
+    <RecentMethod id="9706667c-656e-4c8b-9a85-8460de9a9b6a%28BC%29-5394/M%3ABC.Program.Main%28System.String%5B%5D%29" />
+  </RecentlyViewedMethods>
+</RecentlyViewedMethods>

@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BC</RootNamespace>
     <AssemblyName>BC</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -38,11 +39,12 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Base58.cs" />
+    <Compile Include="ArrayHelpers.cs" />
+    <Compile Include="Base58Encoding.cs" />
     <Compile Include="BCString.cs" />
     <Compile Include="ByteCodeWriter.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="FunctionPointer.cs" />
+    <Compile Include="Pointer.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="InstructionSet.cs" />
     <Compile Include="InstructionWriter.cs" />
@@ -52,6 +54,7 @@
     <Compile Include="Primitive.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scope.cs" />
     <Compile Include="VM.cs" />
     <Compile Include="Void.cs" />
   </ItemGroup>

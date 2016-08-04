@@ -17,6 +17,8 @@
         Pause = 0x17,
         Ret = 0x18,
 
-        Local = 0x25
+        Local = 0x25,
+
+        Branch = 0x30,
     }
 }
